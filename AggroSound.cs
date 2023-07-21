@@ -8,7 +8,7 @@ using EmeraldAI.Utility;
 
 namespace EmeraldAI
 {
-    public class OverlapSphereTest : MonoBehaviour
+    public class AggroSound : MonoBehaviour
     {
         EmeraldAISystem emeraldComponent;
         EmeraldAIEventsManager eventsManager;
@@ -57,7 +57,7 @@ namespace EmeraldAI
                             {
                                 EmeraldAISystem emeraldAI = col.gameObject.GetComponentInParent<EmeraldAISystem>();
 
-                                if (col.name == "Densoptere")
+                                if (col.gameObject == gameObject)
                                 {
                                     continue;
                                 }
