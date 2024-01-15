@@ -1,4 +1,5 @@
 using PolymindGames.BuildingSystem;//
+using PolymindGames.InventorySystem; //
 using PolymindGames.WorldManagement;
 using System.Collections;
 using UnityEngine;
@@ -20,6 +21,18 @@ namespace PolymindGames
 
         // 배열로 된 제작 가능한 레벨 속성 정의
         public int[] CraftableLevels => m_CraftableLevels;
+
+        #region Internal
+        public class CookingSlot // 내부 클래스로, 각 요리 슬롯에 대한 정보를 저장 (추가)
+        {
+            public bool CanCook => Property != null;
+
+            public IItem Item;
+            public CraftingData Data;
+            public IItemProperty Property;
+        }
+        #endregion
+
 
         [Title("Settings (Craft Station)")]
 
@@ -84,15 +97,24 @@ namespace PolymindGames
         [Title("Temperature (Cooking)")]
 
         [SerializeField, Range(1f, 1000f)]
-        private float m_MaxTemperatureAchieveTime = 500; // 최대 온도에 도달하는 데 걸리는 시간
+        private float m_MaxTemperatureAchieveTime = 250; // 최대 온도에 도달하는 데 걸리는 시간
 
-        [SerializeField, Range(40, 60)]
-        public int m_MaxProximityTemperature = 50; // private >> public으로 수정
+        [SerializeField, Range(40, 200)]
+        public int m_MaxProximityTemperature = 150; // private >> public으로 수정
 
         private float m_InGameDayScale;
 
         private float m_CookingDurationRealtime;
         private bool m_CookingIsActive = false;
+
+        private int m_CookingSpots = 1; // 추가
+
+        public DataIdReference<ItemPropertyDefinition> m_CookedAmountProperty; // 추가
+
+        public ItemContainer m_Container; // 추가
+        public CookingSlot[] m_CookingSlots; // 추가
+
+        public override IItemContainer[] GetContainers() => new IItemContainer[] { m_Container }; // 추가
 
 
         public void StartCooking(float fuelDuration) // 요리를 시작
@@ -126,7 +148,20 @@ namespace PolymindGames
                 // You might want to provide a default value or log a warning.
                 m_InGameDayScale = WorldManagerBase.k_DefaultDayDurationInMinutes / 1440f;
             }
+
+            m_CookingSlots = new CookingSlot[m_CookingSpots];
+            for (int i = 0; i < m_CookingSpots; i++)
+                m_CookingSlots[i] = new();
+
+            if (m_Container == null)
+                GenerateContainer(); // 추가
         }
+
+        private void GenerateContainer() // 아이템 컨테이너를 생성 (추가)
+        {
+            m_Container = new ItemContainer("Cooking", m_CookingSpots, new ContainerDataRestriction(typeof(CraftingData)), new ContainerPropertyRestriction(m_CookedAmountProperty));
+        }
+
 
         private void UpdateDescriptionText() // 설명 텍스트를 업데이트
         {
@@ -165,6 +200,9 @@ namespace PolymindGames
         #region Save & Load
         public void LoadMembers(object[] members)
         {
+            m_Container = (ItemContainer)members[0];
+            m_Container.OnLoad(); 
+            //
             m_CookingDurationRealtime = (float)members[1];
             CookingActive = (bool)members[2];
         }
@@ -173,6 +211,7 @@ namespace PolymindGames
         {
             object[] members = new object[]
             {
+                m_Container, //
                 m_CookingDurationRealtime,
                 m_CookingIsActive,
             };

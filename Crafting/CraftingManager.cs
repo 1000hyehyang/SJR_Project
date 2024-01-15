@@ -112,8 +112,21 @@ namespace PolymindGames.InventorySystem
                         return;
                 }
 
+                int addedItems = craftData.CraftAmount;
                 // 제작이 완료되면 제작된 아이템을 인벤토리에 추가
-                int addedItems = m_Inventory.AddItemsWithId(m_CurrentItemToCraft.Id, craftData.CraftAmount);
+                //int addedItems = m_Inventory.AddItemsWithId(m_CurrentItemToCraft.Id, craftData.CraftAmount);
+ 
+                var data = m_CurrentItemToCraft;
+                var spoilData = craftData.CraftingSpoilOutput;
+
+                if (m_CraftStation.CurrentHeat >= craftData.CraftTemperature - 10 && m_CraftStation.CurrentHeat <= craftData.CraftTemperature + 10) // 요리의 온도가 특정 범위 내일 때
+                {
+                    m_CraftStation.m_Container[0].Item = new Item(data, 1); // 현재는 요리가 레시피 당 한 개만 나온다고 가정했기에 '1' 부분을 stackCount로 추후 수정해야함. - 2024.01.09
+                }
+                else
+                {
+                    m_CraftStation.m_Container[0].Item = new Item(spoilData.Def, 1);
+                }
 
                 // 인벤토리에 추가할 수 없을 경우, 아이템을 월드에 떨어뜨림
                 if (addedItems < craftData.CraftAmount)

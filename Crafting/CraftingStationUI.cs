@@ -10,6 +10,9 @@ namespace PolymindGames.UISystem
         [SerializeField]
         private CraftingUI m_CraftingUI;
 
+        [SerializeField, SceneObjectOnly]
+        private ItemContainerUI m_ContainerUI; // 추가
+
         //여기서부터
         [Title("Settings (Cooking)")]
 
@@ -23,6 +26,9 @@ namespace PolymindGames.UISystem
 
         [SerializeField]
         private FuelSelectorUI m_FuelSelector;
+
+        [SerializeField]
+        private ItemContainerUI m_ItemContainer; // 추가
 
         [SerializeField]
         private Button m_StartFireBtn;
@@ -50,6 +56,7 @@ namespace PolymindGames.UISystem
 
         protected override void OnInspectionStarted(CraftStation workstation)
         {
+
             // CraftingUI의 SetAvailableCraftingLevels 메서드를 호출하여 가능한 제작 레벨을 설정
             m_CraftingUI.SetAvailableCraftingLevels(workstation.CraftableLevels);
 
@@ -65,6 +72,7 @@ namespace PolymindGames.UISystem
                 m_ExtinguishBtn.interactable = workstation.CookingActive;
 
                 m_FuelSelector.AttachToInventory(Player.Inventory);
+                m_ItemContainer.AttachToContainer(m_Workstation.GetContainers()[0]); // 추가
 
                 workstation.DescriptionChanged += OnCampfireDescriptionUpdate;
                 OnCampfireDescriptionUpdate();
@@ -78,12 +86,14 @@ namespace PolymindGames.UISystem
                 m_ExtinguishBtn.gameObject.SetActive(false);
                 m_FuelHeader.gameObject.SetActive(false);
                 m_DescriptionText.gameObject.SetActive(false);
+                m_ItemContainer.gameObject.SetActive(false); // 추가
             }
 
         }
 
         protected override void OnInspectionEnded(CraftStation workstation)
         {
+
             // CraftingUI의 ResetCraftingLevel 메서드를 호출하여 제작 레벨을 초기화
             m_CraftingUI.ResetCraftingLevel();
 
@@ -97,6 +107,7 @@ namespace PolymindGames.UISystem
             if (workstation.CraftableLevels[0] >= 2)
             {
                 m_FuelSelector.DetachFromInventory();
+                m_ItemContainer.DetachFromContainer(); // 추가
 
                 m_Workstation.DescriptionChanged -= OnCampfireDescriptionUpdate;
             }

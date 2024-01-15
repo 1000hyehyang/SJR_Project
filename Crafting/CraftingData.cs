@@ -24,6 +24,8 @@ namespace PolymindGames.InventorySystem
         // 분해 효율
         public float DismantleEfficiency => m_DismantleEfficiency;
 
+        public DataIdReference<ItemDefinition> CraftingSpoilOutput => m_CraftingSpoilOutput; // 요리에서만 필요 (추가)
+
         // 제작에 필요한 재료 배열
         [Tooltip("A list with all the 'ingredients' necessary to craft this item, it's also used in dismantling.")]
         [SpaceArea, SerializeField, ReorderableList(ListStyle.Lined)]
@@ -35,7 +37,7 @@ namespace PolymindGames.InventorySystem
         private int m_CraftAmount = 1;
 
         // 제작할 아이템의 필요 온도 (추가된 내용)
-        [SerializeField, Range(0, 100)]
+        [SerializeField, Range(0, 200)]
         [Help("Note: Build when it reaches a certain temperature.")]
         private int m_CraftTemperature = 0;
 
@@ -57,6 +59,8 @@ namespace PolymindGames.InventorySystem
         [SerializeField, Range(0, 1f)]
         private float m_DismantleEfficiency = 0.75f;
 
+        [SerializeField]
+        private DataIdReference<ItemDefinition> m_CraftingSpoilOutput; // 요리에 필요한 데이터 (추가)
 
         // 제작에 필요한 재료 배열을 생성하는 메소드
         public CraftRequirement[] CreateCraftRequirements(float durability)
